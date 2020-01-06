@@ -1,0 +1,40 @@
+<%var serviceType = serviceName.replace("%s",tableNameCapitalize) _%>
+<%var service = serviceName.replace("%s",tableNameCamelBak) _%>
+<%var serviceImplType = serviceImplName.replace("%s",tableNameCapitalize) _%>
+<%var serviceImpl = serviceImplName.replace("%s",tableNameCamelBak) _%>
+<%var mapperType = mapperName.replace("%s",tableNameCapitalize) _%>
+<%var mapper = mapperName.replace("%s",tableNameCamelBak) _%>
+<%var entityType = entityName.replace("%s",tableNameCapitalize) _%>
+<%var entity = entityName.replace("%s",tableNameCamelBak) _%>
+/**
+* @author: <%= author %>
+* @date: <%= date %>
+*/
+@Service("<%= service %>")
+public class <%= serviceImplType %> implements <%= serviceType %> {
+    @Autowired
+    <%= mapperType %> <%= mapper %>;
+
+    @Override
+    public IPage listPage(Map<String, Object> params) {
+        PageWrapper<<%= entityType %>> pageWrapper = new PageWrapper<>(params).getPage();
+        IPage<<%= entityType %>> page = <%= mapper %>.selectPage(pageWrapper.getPage,
+            new LambdaQueryWrapper<<%= entityType %>>());
+        return page;
+    }
+
+    @Override
+    public void add(<%= entityType %> <%= entity %>) {
+        <%= mapper %>.insert(<%= entity %>);
+    }
+
+    @Override
+    public void update(<%= entityType %> <%= entity %>) {
+        <%= mapper %>.updateById(<%= entity %>);
+    }
+
+    @Override
+    public void delete(Long id) {
+         <%= mapper %>.deleteById(id);
+    }
+}

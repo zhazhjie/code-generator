@@ -1,0 +1,36 @@
+/**
+* @author: <%= author %>
+* @date: <%= date %>
+*/
+import request from '@/config/request'
+
+export function listPage(query) {
+    return request({
+        url: '<%=basePath%>/listPage',
+        method: 'get',
+        params: query
+    })
+}
+
+export function addObj(obj) {
+    return request({
+        url: '<%=basePath%>/add',
+        method: 'put',
+        data: obj
+    })
+}
+
+export function delObj(id) {
+    return request({
+        url: '<%=basePath%>/delete/' + id,
+        method: 'delete'
+    })
+}
+
+export function updObj(obj) {
+    return request({
+        url: '<%=basePath%>/update',
+        method: 'post',
+        data: obj
+    })
+}

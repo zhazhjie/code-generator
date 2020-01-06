@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./src/lib/element-ui/2.13.0/theme-chalk/index.css">
+  <link rel="stylesheet" href="./src/lib/tt/tableTemplate.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+  <table-template
+    ref="table"
+    :data="tableList"
+    :config="config"
+    :table-loading="tableLoading"
+    @submit-search="handleSearch"
+    @page-change="getTableList"
+    :page='params'>
+  </table-template>
+</div>
+<script src="./src/lib/vue.js"></script>
+<script src="./src/lib/element-ui/2.13.0/index.js"></script>
+<script src="./src/lib/tt/tableTemplate.umd.min.js"></script>
+<script>
+  const util = require("./src/utils/util");
+  const dbUtil = require("./src/db/connect");
+  new Vue({
+    el: "#app",
+    data: {
+      tableList: [],
+      tableLoading: false,
+      config: {
+        showAddBtn: false,
+        showIndex: true,
+        columns: [
+          {
+            label: '表名',
+            field: 'tableName',
+          },
+          {
+            label: '创建时间',
+            field: 'createTime',
+            hideInSearch: true,
+            render: row => {
+              return util.formatTime(row.createTime, "yyyy-MM-dd hh:mm:ss");
+            }
+          }
+        ],
+        handlerList: [
+          {
+            label: '配置',
+            icon: 'el-icon-edit'
+          },
+        ],
+      },
+      params: {
+        current: 1,
+        size: 10,
+        total: 10
+      }
+    },
+    methods: {
+      getTableList() {
+        this.tableLoading = true;
+        dbUtil.getTableList(this.params).then(results => {
+          this.tableList = results;
+          this.tableLoading = false;
+        }).catch(err => {
+          this.$message.error(err.sqlMessage);
+          this.tableLoading = false;
+        });
+        this.countTable();
+      },
+      countTable() {
+        dbUtil.countTable(this.params).then(total => {
+          this.params.total = total;
+        }).catch(err => this.$message.error(err.sqlMessage));
+      },
+      handleSearch(params) {
+        this.params.current = 1;
+        this.params = {...this.params, ...params};
+        this.getTableList();
+      }
+    },
+    mounted() {
+      this.getTableList();
+    }
+  });
+</script>
+</body>
+</html>

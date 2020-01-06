@@ -1,0 +1,21 @@
+<% var entityType = entityName.replace("%s", tableNameCapitalize); _%>
+/**
+* @author: <%= author %>
+* @date: <%= date %>
+*/
+@Data
+@TableName("<%= tableName %>")
+public class <%= entityType %> <% if(superEntityClass){ %>extends BaseModel<% }else{ %>implements Serializable<% } %>  {
+
+    private static final long serialVersionUID = 1L;
+
+<% columns.forEach(column=>{ _%>
+    <%_ if(superEntityColumns.indexOf(column.columnName) === -1){ _%>
+    /**
+    * <%= column.columnComment %>
+    */
+    private <%= column.propertyType %> <%= column.property %>;
+
+    <%_ } _%>
+<% }) _%>
+}

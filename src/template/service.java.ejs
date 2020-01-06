@@ -1,0 +1,19 @@
+<%var serviceType = serviceName.replace("%s",tableNameCapitalize) _%>
+<%var service = serviceName.replace("%s",tableNameCamelBak) _%>
+<%var entityType = entityName.replace("%s",tableNameCapitalize) _%>
+<%var entity = entityName.replace("%s",tableNameCamelBak) _%>
+/**
+* @author: <%= author %>
+* @date: <%= date %>
+*/
+public interface <%= serviceType %> {
+
+    IPage listPage(Map<String, Object> params);
+
+    void add(<%= entityType %> <%= entity %>);
+
+    void update(<%= entityType %> <%= entity %>);
+
+    void delete(Long id);
+
+}

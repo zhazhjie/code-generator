@@ -1,0 +1,40 @@
+<%var controller = controllerName.replace("%s",tableNameCapitalize) _%>
+<%var serviceType = serviceName.replace("%s",tableNameCapitalize) _%>
+<%var service = serviceName.replace("%s",tableNameCamelBak) _%>
+<%var entityType = entityName.replace("%s",tableNameCapitalize) _%>
+<%var entity = entityName.replace("%s",tableNameCamelBak) _%>
+/**
+* @author: <%=author%>
+* @date: <%=date%>
+*/
+@RestController
+@RequestMapping("<%=basePath%>")
+public class <%= controller %> <% if(superControllerClass){ %>extends BaseModel<%}%>{
+    @Autowired
+    <%= serviceType %> <%= service %>;
+
+    @GetMapping("/listPage")
+    public ResponseData listPage(@RequestParam Map<String, Object> params) {
+        IPage iPage = <%= service %>.listPage(params);
+        return ResponseData.success(iPage);
+    }
+
+    @PostMapping("/update")
+    public ResponseData update(@RequestBody <%= entityType %> <%= entity %>) {
+        <%= service %>.update(<%= entity %>);
+        return ResponseData.success();
+    }
+
+    @PutMapping("/add")
+    public ResponseData add(@RequestBody <%= entityType %> <%= entity %>) {
+        <%= service %>.add(<%= entity %>);
+        return ResponseData.success();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseData delete(@PathVariable Long id) {
+        <%= service %>.delete(id);
+        return ResponseData.success();
+    }
+
+}

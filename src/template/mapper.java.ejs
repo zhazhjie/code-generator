@@ -1,0 +1,9 @@
+<% var mapper = mapperName.replace("%s", tableNameCapitalize) _%>
+<% var entityType = entityName.replace("%s", tableNameCapitalize) _%>
+/**
+* @author: <%= author %>
+* @date: <%= date %>
+*/
+public interface <%= mapper %> extends BaseMapper<<%= entityType %>> {
+
+}
