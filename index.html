@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>code-generator</title>
+  <title>代码生成器</title>
+  <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="./src/lib/element-ui/2.13.0/theme-chalk/index.css">
+  <link rel="stylesheet" href="./src/css/index.css">
 </head>
 <body>
 <div id="app">
-  <div>
+  <div class="content">
     <el-form ref="form" :model="form" label-width="80px">
       <el-form-item label="主机">
         <el-input v-model="form.host"></el-input>
@@ -24,9 +26,7 @@
       <el-form-item label="密码">
         <el-input v-model="form.password"></el-input>
       </el-form-item>
-      <el-form-item>
-        <el-button @click="handleConnectDB">连接</el-button>
-      </el-form-item>
+      <el-button type="primary" :loading="loading" @click="handleConnectDB">连接</el-button>
     </el-form>
   </div>
 </div>
@@ -36,22 +36,28 @@
   const dbUtil = require("./src/db/connect");
   new Vue({
     el: "#app",
-    data: {
-      form: {
-        host: "127.0.0.1",
-        user: "root",
-        password: "123456",
-        port: "3306",
-        database: "test"
-      },
+    data() {
+      return {
+        loading: false,
+        form: {
+          host: "127.0.0.1",
+          user: "root",
+          password: "123456",
+          port: "3306",
+          database: "test"
+        },
+      }
     },
     methods: {
       handleConnectDB() {
+        this.loading = true;
         dbUtil.connectDB(this.form).then(connection => {
           process.connection = connection;
           process.dbConfig = this.form;
           location.href = "tableList.html";
+          this.loading = false;
         }).catch(err => {
+          this.loading = false;
           this.$message.error(err.sqlMessage);
         });
       }
