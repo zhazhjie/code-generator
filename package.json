@@ -1,9 +1,15 @@
 {
   "name": "code-generator",
   "main": "index.html",
+  "window": {
+    "title": "代码生成器",
+    "width": 1024,
+    "height": 768,
+    "icon": "./src/img/icon.png",
+    "position": "center"
+  },
   "dependencies": {
     "ejs": "^3.0.1",
-    "mysql": "^2.17.1",
-    "vue": "^2.6.11"
+    "mysql": "^2.17.1"
   }
 }

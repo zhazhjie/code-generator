@@ -3,7 +3,32 @@
  * @date: 2020-01-06 09:58:26
  * @version: 1.0
  */
-function formatTime (date,fmt) {
+
+function setStore(name, data, type) {
+  if (type) {
+    if (data === null) {
+      localStorage.removeItem(name);
+    } else {
+      localStorage.setItem(name, JSON.stringify(data));
+    }
+  } else {
+    if (data === null) {
+      sessionStorage.removeItem(name);
+    } else {
+      sessionStorage.setItem(name, JSON.stringify(data));
+    }
+  }
+}
+
+function getStore(name, type) {
+  if (type) {
+    return JSON.parse(localStorage.getItem(name) || 'null')
+  } else {
+    return JSON.parse(sessionStorage.getItem(name) || 'null')
+  }
+}
+
+function formatTime(date, fmt) {
   let o = {
     "M+": date.getMonth() + 1,                 //月份
     "d+": date.getDate(),                    //日
@@ -70,6 +95,8 @@ function mysqlTypeConvert(fieldType) {
 }
 
 module.exports = {
+  setStore,
+  getStore,
   underlineToCamelBak,
   mysqlTypeConvert,
   formatTime

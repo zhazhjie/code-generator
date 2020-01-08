@@ -3,7 +3,7 @@
 * @date: <%= date %>
 */
 import request from '@/config/request'
-
+<% if(retrieveFlag){ _%>
 export function listPage(query) {
     return request({
         url: '<%=basePath%>/listPage',
@@ -11,7 +11,8 @@ export function listPage(query) {
         params: query
     })
 }
-
+<% } %>
+<% if(createFlag){ _%>
 export function addObj(obj) {
     return request({
         url: '<%=basePath%>/add',
@@ -19,14 +20,16 @@ export function addObj(obj) {
         data: obj
     })
 }
-
+<% } %>
+<% if(deleteFlag){ _%>
 export function delObj(id) {
     return request({
         url: '<%=basePath%>/delete/' + id,
         method: 'delete'
     })
 }
-
+<% } %>
+<% if(updateFlag){ _%>
 export function updObj(obj) {
     return request({
         url: '<%=basePath%>/update',
@@ -34,3 +37,4 @@ export function updObj(obj) {
         data: obj
     })
 }
+<% } %>

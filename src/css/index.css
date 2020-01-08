@@ -3,6 +3,21 @@
   margin: 0;
 }
 
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background-color: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: rgba(144, 146, 152, 0.3);
+}
+
+::-webkit-scrollbar-track-piece {
+  background-color: #fff;
+}
+
 #app {
   height: 100vh;
   display: flex;
@@ -17,11 +32,15 @@
   background: #fff;
   border-radius: 10px;
   width: 400px;
-  text-align: center;
+}
+
+.btn{
+  display: block;
+  margin: 0 auto;
 }
 
 @media screen and (max-width: 600px) {
   .content {
-    width: 90%;
+    width: 80%;
   }
 }

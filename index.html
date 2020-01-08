@@ -10,23 +10,26 @@
 <body>
 <div id="app">
   <div class="content">
-    <el-form ref="form" :model="form" label-width="80px">
+    <el-form ref="form" :model="dbConfig" label-width="80px">
       <el-form-item label="主机">
-        <el-input v-model="form.host"></el-input>
+        <el-input v-model="dbConfig.host"></el-input>
       </el-form-item>
       <el-form-item label="端口">
-        <el-input v-model="form.port"></el-input>
+        <el-input v-model="dbConfig.port"></el-input>
       </el-form-item>
       <el-form-item label="数据库">
-        <el-input v-model="form.database"></el-input>
+        <el-input v-model="dbConfig.database"></el-input>
       </el-form-item>
       <el-form-item label="用户名">
-        <el-input v-model="form.user"></el-input>
+        <el-input v-model="dbConfig.user"></el-input>
       </el-form-item>
       <el-form-item label="密码">
-        <el-input v-model="form.password"></el-input>
+        <el-input v-model="dbConfig.password"></el-input>
       </el-form-item>
-      <el-button type="primary" :loading="loading" @click="handleConnectDB">连接</el-button>
+      <el-form-item>
+        <el-checkbox v-model="remember" label="记住连接"></el-checkbox>
+      </el-form-item>
+      <el-button class="btn" type="primary" :loading="loading" @click="handleConnectDB">连接</el-button>
     </el-form>
   </div>
 </div>
@@ -34,26 +37,33 @@
 <script src="./src/lib/element-ui/2.13.0/index.js"></script>
 <script>
   const dbUtil = require("./src/db/connect");
+  const util = require("./src/utils/util");
   new Vue({
     el: "#app",
     data() {
+      let dbConfig = util.getStore("dbConfig", "local") || {};
       return {
+        remember: !!dbConfig,
         loading: false,
-        form: {
-          host: "127.0.0.1",
-          user: "root",
-          password: "123456",
-          port: "3306",
-          database: "test"
+        dbConfig: {
+          host: "",
+          user: "",
+          password: "",
+          port: "",
+          database: "",
+          ...dbConfig,
         },
       }
     },
     methods: {
       handleConnectDB() {
         this.loading = true;
-        dbUtil.connectDB(this.form).then(connection => {
-          process.connection = connection;
-          process.dbConfig = this.form;
+        dbUtil.connectDB(this.dbConfig).then(connection => {
+          if (this.remember) {
+            util.setStore("dbConfig", this.dbConfig, "local");
+          } else {
+            util.setStore("dbConfig", null, "local");
+          }
           location.href = "tableList.html";
           this.loading = false;
         }).catch(err => {

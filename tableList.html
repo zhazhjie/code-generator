@@ -9,6 +9,7 @@
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="./src/lib/element-ui/2.13.0/theme-chalk/index.css">
   <link rel="stylesheet" href="./src/lib/tt/tableTemplate.css">
+  <link rel="stylesheet" href="./src/css/tableList.css">
   <style>
     [v-cloak] {
       display: none;
@@ -25,9 +26,69 @@
     @page-change="getTableList"
     :page='params'>
   </table-template>
-  <el-dialog title="配置" :visible.sync="dialogVisible" :close-on-click-modal="false">
+  <el-dialog title="模版配置" :visible.sync="dialogVisible" width="800px" :close-on-click-modal="false">
+    <el-checkbox label="记住配置项" v-model="remember"></el-checkbox>
+    <div class="item-title">后端配置</div>
+    <el-form label-width="100px">
+      <el-form-item label-width="0">
+        <el-checkbox label="生成后端代码" v-model="options.backendCode"></el-checkbox>
+      </el-form-item>
+      <template v-if="options.backendCode">
+        <el-form-item label="作者">
+          <el-input placeholder="请输入作者" v-model="options.author"></el-input>
+        </el-form-item>
+        <el-form-item label="基准路径">
+          <el-input placeholder="请输入基准路径" v-model="options.basePath"></el-input>
+        </el-form-item>
+        <el-form-item label="模版内容">
+          <el-checkbox label="新增" v-model="options.createFlag"></el-checkbox>
+          <el-checkbox label="分页" v-model="options.retrieveFlag"></el-checkbox>
+          <el-checkbox label="更新" v-model="options.updateFlag"></el-checkbox>
+          <el-checkbox label="删除" v-model="options.deleteFlag"></el-checkbox>
+        </el-form-item>
+        <el-form-item label-width="0">
+          <el-checkbox label="更多配置项" v-model="moreOptions"></el-checkbox>
+        </el-form-item>
+        <template v-if="moreOptions">
+          <el-form-item label="实体名称">
+            <el-input placeholder="实体名称，如%s" v-model="options.entityName"></el-input>
+          </el-form-item>
+          <el-form-item label="控制层名称">
+            <el-input placeholder="控制层名称如，如%sController" v-model="options.controllerName"></el-input>
+          </el-form-item>
+          <el-form-item label="服务层名称">
+            <el-input placeholder="服务层名称如，如%sService" v-model="options.serviceName"></el-input>
+          </el-form-item>
+          <el-form-item label="实现层名称">
+            <el-input placeholder="实现层名称如，如%sServiceImpl" v-model="options.serviceImplName"></el-input>
+          </el-form-item>
+          <el-form-item label="映射层名称">
+            <el-input placeholder="映射层名称如，如%sMapper" v-model="options.mapperName"></el-input>
+          </el-form-item>
+          <el-form-item label="控制层父类">
+            <el-input placeholder="控制层父类" v-model="options.superControllerClass"></el-input>
+          </el-form-item>
+          <el-form-item label="实体父类">
+            <el-input placeholder="实体父类" v-model="options.superEntityClass"></el-input>
+          </el-form-item>
+          <el-form-item label="实体父类字段">
+            <el-input placeholder="实体父类字段，以英文逗号隔开" v-model="options.superEntityColumns"></el-input>
+          </el-form-item>
+          <el-form-item label="基础包名">
+            <el-input placeholder="基础包名" v-model="options.basePackage"></el-input>
+          </el-form-item>
+        </template>
+      </template>
+    </el-form>
+    <div class="item-title">前端配置</div>
+    <el-form>
+      <el-form-item>
+        <el-checkbox label="生成前端代码" v-model="options.frontendCode"></el-checkbox>
+      </el-form-item>
+    </el-form>
     <table-template
-      :data="columnList"
+      v-if="options.frontendCode"
+      :data="options.columns"
       :config="columnConfig">
       <template v-slot:columnname="row">
         <div>{{row}}</div>
@@ -45,19 +106,48 @@
 <script>
   const util = require("./src/utils/util");
   const dbUtil = require("./src/db/connect");
+  const ejs = require('ejs');
+  const fs = require('fs');
   new Vue({
     el: "#app",
     data() {
       return {
+        remember: true,
+        moreOptions: false,
         tableList: [],
-        columnList: [],
         tableLoading: false,
         dialogVisible: false,
         handleLoading: false,
+        options: {
+          backendCode: true,
+          basePath: "",
+          createFlag: false,
+          retrieveFlag: false,
+          updateFlag: false,
+          deleteFlag: false,
+          frontendCode: false,
+          author: "",
+          date: util.formatTime(new Date(), "yyyy-MM-dd hh:mm:ss"),
+          entityName: "%s",
+          serviceName: "%sService",
+          serviceImplName: "%sServiceImpl",
+          controllerName: "%sController",
+          mapperName: "%sMapper",
+          apiName: "%s",
+          viewName: "%s",
+          columns: [],
+          tableName: "",
+          tableNameCamelBak: "",
+          tableNameCapitalize: "",
+          superEntityClass: "",
+          superControllerClass: "",
+          superEntityColumns: ["id", "create_time", "update_time"],
+          basePackage: "com.zzj"
+        },
         curRow: {},
         config: {
           withoutDialog: true,
-          handlerProps: {width: "80px"},
+          handlerProps: {width: "100px"},
           showAddBtn: false,
           showIndex: true,
           columns: [
@@ -76,10 +166,15 @@
           ],
           handlerList: [
             {
-              label: '配置',
+              label: '模版配置',
               icon: 'el-icon-edit',
               click: row => {
-                this.getColumnList({tableName: row.tableName});
+                let tableName = row.tableName;
+                this.getColumnList({tableName: tableName});
+                this.options.tableName = tableName;
+                this.options.tableNameCamelBak = util.underlineToCamelBak(tableName);
+                this.options.tableNameCapitalize = util.underlineToCamelBak(tableName, true);
+                this.options.basePath = "/" + tableName.replace(/_/g, "/");
                 this.dialogVisible = true;
               }
             },
@@ -133,12 +228,11 @@
       getColumnList(params) {
         this.handleLoading = true;
         dbUtil.getColumnList(params).then(results => {
-          console.log(results)
           results.forEach(v => {
             v.label = v.columnComment;
             v.hideInTable = false;
           });
-          this.columnList = results;
+          this.options.columns = results;
           this.handleLoading = false;
         }).catch(err => {
           this.$message.error(err.sqlMessage);
@@ -149,19 +243,42 @@
         dbUtil.countTable(this.params).then(total => {
           this.params.total = total;
         }).catch(err => this.$message.error(err.sqlMessage));
-      }
-      ,
+      },
       handleSearch(params) {
         this.params.current = 1;
         this.params = {...this.params, ...params};
         this.getTableList();
-      }
-      ,
+      },
       handleSubmit() {
-
+        this.handleLoading = true;
+        this.options.date = util.formatTime(new Date(), "yyyy-MM-dd hh:mm:ss");
+        let outputDir = "./dist";
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir);
+        }
+        let templates = fs.readdirSync('./src/template');
+        templates.forEach(template => {
+          ejs.renderFile('./src/template/' + template, this.options, (err, str) => {
+            if (err) {
+              this.handleLoading = false;
+              this.$message.error(JSON.stringify(err));
+              return;
+            }
+            let ary = template.split(".");
+            let optionName = this.options[ary[0] + "Name"] || "";
+            let fileName = optionName.replace("%s", this.options.tableNameCapitalize) + "." + ary[1];
+            let data = new Uint8Array(Buffer.from(str));
+            fs.writeFile(`${outputDir}/${fileName}`, data, (err) => {
+              if (err) {
+                this.$message.error(JSON.stringify(err));
+              }
+              this.handleLoading = false;
+              this.dialogVisible = false;
+            });
+          });
+        });
       }
-    }
-    ,
+    },
     mounted() {
       this.getTableList();
     }

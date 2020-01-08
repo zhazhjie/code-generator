@@ -12,6 +12,8 @@ function connectDB(config) {
       if (err) {
         reject(err);
       }else{
+        process.connection = connection;
+        process.dbConfig = config;
         resolve(connection);
       }
     });
