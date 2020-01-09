@@ -66,31 +66,38 @@ function mysqlTypeConvert(fieldType) {
     case "text":
     case "json":
     case "enum":
-      return "String";
+      return {type: "String", pk: null};
     case "bigint":
-      return "Long";
+      return {type: "Long", pk: null};
     case "bit":
-      return "Boolean";
+      return {type: "Boolean", pk: null};
     case "int":
+    case "integer":
     case "tinyint":
-      return "Integer";
+      return {type: "Integer", pk: null};
     case "decimal":
-      return "BigDecimal";
+      return {type: "BigDecimal", pk: "java.math.BigDecimal"};
     case "clob":
-      return "Clob";
+      return {type: "Clob", pk: "java.sql.Clob"};
     case "blob":
-      return "Blob";
+      return {type: "Blob", pk: "java.sql.Blob"};
     case "binary":
-      return "byte[]";
+      return {type: "byte[]", pk: null};
     case "float":
-      return "Float";
+      return {type: "Float", pk: null};
     case "double":
-      return "Double";
+      return {type: "Double", pk: null};
     case "date":
     case "datetime":
-      return "Date";
+      return {type: "Date", pk: "java.util.Date"};
+    case "time":
+      return {type: "Time", pk: "java.sql.Time"};
+    case "timestamp":
+      return {type: "Timestamp", pk: "java.sql.Timestamp"};
+    case "year":
+      return {type: "Year", pk: "java.time.Year"};
     default:
-      return "String";
+      return {type: "String", pk: null};
   }
 }
 

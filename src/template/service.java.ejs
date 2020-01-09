@@ -2,18 +2,35 @@
 <%var service = serviceName.replace("%s",tableNameCamelBak) _%>
 <%var entityType = entityName.replace("%s",tableNameCapitalize) _%>
 <%var entity = entityName.replace("%s",tableNameCamelBak) _%>
+<% if(servicePackage){ %>package <%= servicePackage %>;<% } _%>
+
+<% if((updateFlag || createFlag) && entityPackage){ _%>
+import <%= entityPackage + "." + entityType %>;
+<% } _%>
+<% if(retrieveFlag){ _%>
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.Map;
+<% } _%>
+
 /**
 * @author: <%= author %>
 * @date: <%= date %>
 */
 public interface <%= serviceType %> {
-
+<%_ if(retrieveFlag){ _%>
     IPage listPage(Map<String, Object> params);
 
+<%_ } _%>
+<%_ if(createFlag){ _%>
     void add(<%= entityType %> <%= entity %>);
 
+<%_ } _%>
+<%_ if(updateFlag){ _%>
     void update(<%= entityType %> <%= entity %>);
 
+<%_ } _%>
+<%_ if(deleteFlag){ _%>
     void delete(Long id);
 
+<%_ } _%>
 }

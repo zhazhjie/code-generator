@@ -1,9 +1,25 @@
 <% var entityType = entityName.replace("%s", tableNameCapitalize); _%>
+<% if(entityPackage){ %>package <%= entityPackage %>;<% } _%>
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+<% if(!superEntityClass){ _%>
+import java.io.Serializable;
+<% } _%>
+<% var pks = [...new Set(columns.map(v => v.pk))]; _%>
+<% pks.forEach(pk=>{ _%>
+<% if(pk){ _%>
+import <%= pk %>;
+<% } _%>
+<% }) _%>
+
 /**
 * @author: <%= author %>
 * @date: <%= date %>
 */
 @Data
+@EqualsAndHashCode(callSuper = <% if(superEntityClass){ %>true<% }else{ %>false<% } %>)
 @TableName("<%= tableName %>")
 public class <%= entityType %> <% if(superEntityClass){ %>extends BaseModel<% }else{ %>implements Serializable<% } %>  {
 

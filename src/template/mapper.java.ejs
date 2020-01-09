@@ -1,5 +1,12 @@
 <% var mapper = mapperName.replace("%s", tableNameCapitalize) _%>
 <% var entityType = entityName.replace("%s", tableNameCapitalize) _%>
+<% if(mapperPackage){ %>package <%= mapperPackage %>;<% } _%>
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+<% if(entityPackage){ _%>
+  import <%= entityPackage + "." + entityType %>;
+<% } _%>
+
 /**
 * @author: <%= author %>
 * @date: <%= date %>

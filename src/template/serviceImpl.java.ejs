@@ -1,11 +1,26 @@
-<%var serviceType = serviceName.replace("%s",tableNameCapitalize) _%>
-<%var service = serviceName.replace("%s",tableNameCamelBak) _%>
-<%var serviceImplType = serviceImplName.replace("%s",tableNameCapitalize) _%>
-<%var serviceImpl = serviceImplName.replace("%s",tableNameCamelBak) _%>
-<%var mapperType = mapperName.replace("%s",tableNameCapitalize) _%>
-<%var mapper = mapperName.replace("%s",tableNameCamelBak) _%>
-<%var entityType = entityName.replace("%s",tableNameCapitalize) _%>
-<%var entity = entityName.replace("%s",tableNameCamelBak) _%>
+<% var serviceType = serviceName.replace("%s",tableNameCapitalize) _%>
+<% var service = serviceName.replace("%s",tableNameCamelBak) _%>
+<% var serviceImplType = serviceImplName.replace("%s",tableNameCapitalize) _%>
+<% var serviceImpl = serviceImplName.replace("%s",tableNameCamelBak) _%>
+<% var mapperType = mapperName.replace("%s",tableNameCapitalize) _%>
+<% var mapper = mapperName.replace("%s",tableNameCamelBak) _%>
+<% var entityType = entityName.replace("%s",tableNameCapitalize) _%>
+<% var entity = entityName.replace("%s",tableNameCamelBak) _%>
+<% if(servicePackage){ %>package <%= servicePackage %>;<% } _%>
+
+import org.springframework.web.bind.annotation.*;
+<% if(mapperPackage){ _%>
+import <%= mapperPackage + "." + mapperType %>;
+<% } _%>
+<% if((updateFlag || createFlag) && entityPackage){ _%>
+import <%= entityPackage + "." + entityType %>;
+<% } _%>
+<% if(retrieveFlag){ _%>
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.Map;
+<% } _%>
+
 /**
 * @author: <%= author %>
 * @date: <%= date %>
@@ -14,27 +29,35 @@
 public class <%= serviceImplType %> implements <%= serviceType %> {
     @Autowired
     <%= mapperType %> <%= mapper %>;
-
+<%_ if(retrieveFlag){ _%>
     @Override
     public IPage listPage(Map<String, Object> params) {
-        PageWrapper<<%= entityType %>> pageWrapper = new PageWrapper<>(params).getPage();
-        IPage<<%= entityType %>> page = <%= mapper %>.selectPage(pageWrapper.getPage,
+        PageWrapper<<%= entityType %>> pageWrapper = new PageWrapper<>(params);
+        IPage<<%= entityType %>> page = <%= mapper %>.selectPage(pageWrapper.getPage(),
             new LambdaQueryWrapper<<%= entityType %>>());
         return page;
     }
 
+<%_ } _%>
+<%_ if(createFlag){ _%>
     @Override
     public void add(<%= entityType %> <%= entity %>) {
         <%= mapper %>.insert(<%= entity %>);
     }
 
+<%_ } _%>
+<%_ if(updateFlag){ _%>
     @Override
     public void update(<%= entityType %> <%= entity %>) {
         <%= mapper %>.updateById(<%= entity %>);
     }
 
+<%_ } _%>
+<%_ if(deleteFlag){ _%>
     @Override
     public void delete(Long id) {
          <%= mapper %>.deleteById(id);
     }
+
+<%_ } _%>
 }

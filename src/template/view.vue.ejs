@@ -1,25 +1,35 @@
 /**
-* @author: <%=author%>
-* @date: <%=date%>
+* @author: <%= author %>
+* @date: <%= date %>
 */
-<% var listName=tableNameCamelBak+"List" %>
+<% var view = viewName.replace("%s",tableNameCamelBak) _%>
+<% var api = apiName.replace("%s",tableNameCamelBak) _%>
+<% var listName = view + "List" _%>
 <template>
   <section>
     <table-template
-      :data="<%=listName%>"
+      :data="<%= listName %>"
       :config="config"
       :tableLoading="tableLoading"
-      @submitAdd="submitAdd"
-      @submitEdit="submitUpdate"
-      @submitSearch="handleSearch"
+      <%_ if(retrieveFlag){ _%>
       @pageChange="listPage"
+      @submitSearch="handleSearch"
+      <%_ } _%>
+      <%_ if(createFlag){ _%>
+      @submitAdd="submitAdd"
+      <%_ } _%>
+      <%_ if(updateFlag){ _%>
+      @submitEdit="submitUpdate"
+      <%_ } _%>
       :page='params'>
     </table-template>
   </section>
 </template>
 
 <script>
-  import {listPage, updObj, addObj, delObj} from '@/api<%= basePath %>'
+  <%_ if(retrieveFlag || createFlag || updateFlag || deleteFlag){ %>
+  import {<% if(retrieveFlag){ %>listPage, <% } %><% if(createFlag){ %>addObj, <% } %><% if(updateFlag){ %>updObj, <% } %><% if(deleteFlag){ %>delObj, <% } %>} from '@/api/<%= api %>'
+  <%_ } _%>
 
   export default {
     data() {
@@ -27,17 +37,33 @@
         tableLoading: false,
         <%=listName%>: [],
         config: {
-          columns: [<% columns.forEach(column=>{ %>
+          <%_ if(!createFlag){ _%>
+          showAddBtn: false,
+          <%_ } _%>
+          <%_ if(!retrieveFlag){ _%>
+          searchable: false,
+          <%_ } _%>
+          columns: [
+            <%_ columns.forEach(column=>{ _%>
+            <%_ if(!column.hideInTable || !column.hideInSearch || !column.hideInForm){ _%>
             {
-              label: '<%= column.columnComment %>',
+              label: '<%= column.label %>',
               field: '<%= column.property %>',
-            },<% }) %>
+              hideInTable: <%= column.hideInTable %>,
+              hideInSearch: <%= column.hideInSearch %>,
+              hideInForm: <%= column.hideInForm %>,
+            },
+            <%_ } _%>
+            <%_ }) _%>
           ],
           handlerList: [
+          <%_ if(updateFlag){ _%>
             {
               label: '编辑',
               icon: 'el-icon-edit'
             },
+          <%_ } _%>
+          <%_ if(deleteFlag){ _%>
             {
               label: '删除',
               icon: 'el-icon-delete',
@@ -45,11 +71,10 @@
                 this.handleDelete(row);
               }
             }
+          <%_ } _%>
           ],
           rules: {
-            username: [
-              {required: true, message: '请输入登录账号', trigger: 'blur'}
-            ],
+
           },
         },
         params: {
@@ -60,6 +85,12 @@
       }
     },
     methods: {
+      <%_ if(retrieveFlag){ _%>
+      handleSearch(params) {
+        this.params.current = 1;
+        this.params = {...this.params, ...params};
+        this.listPage();
+      },
       listPage() {
         this.tableLoading = true;
         listPage(this.params).then(res => {
@@ -68,6 +99,32 @@
           this.tableLoading = false;
         }).catch(() => this.tableLoading = false);
       },
+      <%_ } _%>
+      <%_ if(createFlag){ _%>
+      submitAdd(row, hideLoading, done) {
+        addObj(row).then((res) => {
+          this.$message({
+            type: 'success',
+            message: `新增成功!`
+          });
+          this.listPage();
+          done();
+        }).catch(() => hideLoading());
+      },
+      <%_ } _%>
+      <%_ if(updateFlag){ _%>
+      submitUpdate(row, hideLoading, done) {
+        updObj(row).then(() => {
+          this.$message({
+            type: 'success',
+            message: '更新成功!'
+          });
+          this.listPage();
+          done();
+        }).catch(() => hideLoading());
+      },
+      <%_ } _%>
+      <%_ if(deleteFlag){ _%>
       handleDelete(row) {
         this.confirm(`确定删除吗?`).then(() => {
           delObj([row.id]).then(() => {
@@ -79,35 +136,13 @@
           });
         });
       },
-      handleSearch(params) {
-        this.params.current = 1;
-        this.params = {...this.params, ...params};
-        this.listPage();
-      },
-      submitAdd(row, hideLoading, done) {
-        addObj(row).then((res) => {
-          this.$message({
-            type: 'success',
-            message: `新增成功!`
-          });
-          this.listPage();
-          done();
-        }).catch(() => hideLoading());
-      },
-      submitUpdate(row, hideLoading, done) {
-        updObj(row).then(() => {
-          this.$message({
-            type: 'success',
-            message: '更新成功!'
-          });
-          this.listPage();
-          done();
-        }).catch(() => hideLoading());
-      },
+      <%_ } _%>
     },
     computed: {},
     mounted() {
+      <%_ if(retrieveFlag){ _%>
       this.listPage();
+      <%_ } _%>
     }
   }
 </script>
