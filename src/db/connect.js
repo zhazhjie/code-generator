@@ -22,8 +22,9 @@ function connectDB(config) {
 function getTableList(params) {
   let {connection,dbConfig={}} = process;
   let {tableName="",current=1,size=10}=params;
+  console.log(tableName)
   return new Promise((resolve, reject) => {
-    connection.query(`select TABLE_NAME tableName,CREATE_TIME createTime from information_schema.tables where table_schema="${dbConfig.database}" ${tableName?'and table_name="'+tableName+'"':""} limit ${(current-1)*size},${size}`, (err, results, fields) => {
+    connection.query(`select TABLE_NAME tableName,CREATE_TIME createTime from information_schema.tables where table_schema="${dbConfig.database}" ${tableName?'and table_name like "%'+tableName+'%"':""} limit ${(current-1)*size},${size}`, (err, results, fields) => {
       if (err) {
         reject(err);
       }else{
@@ -36,7 +37,7 @@ function countTable(params) {
   let {connection,dbConfig={}} = process;
   let {tableName=""}=params;
   return new Promise((resolve, reject) => {
-    connection.query(`select count(1) total from information_schema.tables where table_schema="${dbConfig.database}" ${tableName?'and table_name="'+tableName+'"':""}`, (err, results, fields) => {
+    connection.query(`select count(1) total from information_schema.tables where table_schema="${dbConfig.database}" ${tableName?'and table_name like "%'+tableName+'%"':""}`, (err, results, fields) => {
       if (err) {
         reject(err);
       }else{

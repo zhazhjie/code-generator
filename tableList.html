@@ -159,7 +159,7 @@
           tableNameCapitalize: "",
           superEntityClass: "",
           superControllerClass: "",
-          superEntityColumns: [], //["id", "create_time", "update_time"],
+          superEntityColumns: "", //["id", "create_time", "update_time"],
           basePackage: "",
           entityPackage: "",
           controllerPackage: "",
@@ -272,7 +272,7 @@
             v.hideInSearch = false;
             v.hideInForm = false;
           });
-          console.log(results);
+          // console.log(results);
           this.options.columns = results;
           this.handleLoading = false;
         }).catch(err => {
