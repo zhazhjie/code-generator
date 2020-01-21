@@ -295,6 +295,7 @@
         this.handleLoading = true;
         options.date = util.formatTime(new Date(), "yyyy-MM-dd hh:mm:ss");
         let outputDir = "./dist";
+        let templateDir = "./src/template";
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir);
         }
@@ -303,7 +304,7 @@
         } else {
           util.setStore("options", null, "local");
         }
-        let templates = fs.readdirSync('./src/template');
+        let templates = fs.readdirSync(templateDir);
         let frontendSuffix = ["js", "vue"];
         let backendSuffix = ["java", "xml"];
         templates.forEach(template => {
@@ -312,7 +313,7 @@
           let isFrontendCode = frontendSuffix.indexOf(ary[1]) > -1;
           if (!options.backendCode && isBackendCode) return;
           if (!options.frontendCode && isFrontendCode) return;
-          ejs.renderFile('./src/template/' + template, options, (err, str) => {
+          ejs.renderFile(`${templateDir}/${template}`, options, (err, str) => {
             if (err) {
               this.handleLoading = false;
               this.$message.error(JSON.stringify(err));

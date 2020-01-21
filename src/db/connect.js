@@ -50,7 +50,7 @@ function getColumnList(params) {
   let {connection} = process;
   let {tableName}=params;
   return new Promise((resolve, reject) => {
-    connection.query(`select  COLUMN_NAME columnName,COLUMN_COMMENT columnComment,DATA_TYPE dataType from information_schema.columns where table_name="${tableName}"`, (err, results, fields) => {
+    connection.query(`select  COLUMN_NAME columnName,COLUMN_COMMENT columnComment,DATA_TYPE dataType from information_schema.columns where table_name="${tableName}" order by ORDINAL_POSITION`, (err, results, fields) => {
       if (err) {
         reject(err);
       }else{
